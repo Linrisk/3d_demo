@@ -100,8 +100,8 @@ export default function Home() {
         <GroundGrid />
         <GLTFObject url="/ricard.glb" position={[0, 0, 0]} scale={[0.5, 0.5, 0.5]} rotation={rotation} />
         <GLTFObject url="/malta.glb" position={[20, 0, 0]} scale={[0.5, 0.5, 0.5]} rotation={new THREE.Euler(0, 210, 0)} />
-        <GLTFObject url="/3d.glb" position={[-3, -0, 8]} scale={[0.5, 0.5, 0.5]} rotation={new THREE.Euler(0, 10, -1.62)} />
-        <GLTFObject url="/maison.glb" position={[10, 0, 10]} scale={[0.8, 0.8, 0.8]} rotation={new THREE.Euler(0, 0, 0)} />
+        <GLTFObject url="/3D.glb" position={[-3, -0, 8]} scale={[0.5, 0.5, 0.5]} rotation={new THREE.Euler(0, 10, -1.62)} />
+        <GLTFObject url="/Maison.glb" position={[10, 0, 10]} scale={[0.8, 0.8, 0.8]} rotation={new THREE.Euler(0, 0, 0)} />
 
         <FirstPersonControls />
         <PlayerMovement />
