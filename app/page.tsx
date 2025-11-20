@@ -1,65 +1,111 @@
-import Image from "next/image";
+'use client';
+import { useRef, useEffect } from "react";
+import * as THREE from "three";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { PointerLockControls, useGLTF } from "@react-three/drei";
 
+
+
+function GroundGrid() {
+  return <gridHelper args={[50, 50, "white", "gray"]} />;
+}
+
+interface GLTFObjectProps {
+  url: string;
+  position: [number, number, number];
+  scale: [number, number, number];
+  rotation: THREE.Euler;
+}
+
+function GLTFObject({ url, position, scale, rotation }: GLTFObjectProps) {
+  const { scene } = useGLTF(url);
+  return <primitive object={scene} position={position} scale={scale} rotation={rotation} />;
+}
+
+
+function FirstPersonControls() {
+  const { camera, gl } = useThree();
+const controlsRef = useRef<any>(null);
+
+  return <PointerLockControls ref={controlsRef} args={[camera, gl.domElement]} />;
+}
+function PlayerMovement() {
+  const { camera } = useThree();
+  const velocity = useRef(new THREE.Vector3());
+  const direction = useRef(new THREE.Vector3());
+  const moveForward = useRef(false);
+  const moveBackward = useRef(false);
+  const moveLeft = useRef(false);
+  const moveRight = useRef(false);
+  const prevTime = useRef(performance.now());
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      switch (event.code) {
+        case "KeyZ":
+        case "KeyW": moveForward.current = true; break;
+        case "KeyS": moveBackward.current = true; break;
+        case "KeyQ":
+        case "KeyA": moveLeft.current = true; break;
+        case "KeyD": moveRight.current = true; break;
+      }
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      switch (event.code) {
+        case "KeyZ":
+        case "KeyW": moveForward.current = false; break;
+        case "KeyS": moveBackward.current = false; break;
+        case "KeyQ":
+        case "KeyA": moveLeft.current = false; break;
+        case "KeyD": moveRight.current = false; break;
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
+  useFrame(() => {
+    const time = performance.now();
+    const delta = (time - prevTime.current) / 1000;
+    velocity.current.x -= velocity.current.x * 10.0 * delta;
+    velocity.current.z -= velocity.current.z * 10.0 * delta;
+    direction.current.z = Number(moveForward.current) - Number(moveBackward.current);
+    direction.current.x = Number(moveRight.current) - Number(moveLeft.current);
+    direction.current.normalize();
+    const speed = 25.0;
+    if (moveForward.current || moveBackward.current) velocity.current.z -= direction.current.z * speed * delta;
+    if (moveLeft.current || moveRight.current) velocity.current.x -= direction.current.x * speed * delta;
+    const y = camera.position.y;
+    camera.translateX(velocity.current.x * delta);
+    camera.translateZ(velocity.current.z * delta);
+    camera.position.y = y;
+    prevTime.current = time;
+  });
+
+  return null;
+}
 export default function Home() {
+  const scale = [1.2, 1.2, 1.2];
+  const rotation = new THREE.Euler(0, Math.PI / 4, 0);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <Canvas style={{ height: "100vh", width: "100%" }} camera={{ position: [0, 2, 5], fov: 75 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight castShadow position={[5, 10, 7]} intensity={1} />
+        <GroundGrid />
+        <GLTFObject url="/ricard.glb" position={[0, 0, 0]} scale={[0.5, 0.5, 0.5]} rotation={rotation} />
+        <GLTFObject url="/malta.glb" position={[20, 0, 0]} scale={[0.5, 0.5, 0.5]} rotation={new THREE.Euler(0, 210, 0)} />
+        <GLTFObject url="/3d.glb" position={[-3, -0, 8]} scale={[0.5, 0.5, 0.5]} rotation={new THREE.Euler(0, 10, -1.62)} />
+        <GLTFObject url="/maison.glb" position={[10, 0, 10]} scale={[0.8, 0.8, 0.8]} rotation={new THREE.Euler(0, 0, 0)} />
+
+        <FirstPersonControls />
+        <PlayerMovement />
+      </Canvas>
+    </>
   );
 }
