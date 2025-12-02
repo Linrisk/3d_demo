@@ -304,15 +304,6 @@ export default function Home() {
       description: "Une architecture rêvée, inspirée par mes voyages et mes visions.",
       color: "#00ff00",
     },
-    {
-      id: "distri",
-      position: [10, 0, 20],
-      scale: [0.8, 0.8, 0.8],
-      rotation: new THREE.Euler(0, 0, 0),
-      title: "distri",
-      description: "Une architecture rêvée, inspirée par mes voyages et mes visions.",
-      color: "#00ff00",
-    },
   ]
 
   const handleTeleport = (targetPosition: [number, number, number]) => {
